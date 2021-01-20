@@ -78,14 +78,11 @@ contract Sharer {
 
         uint256 totalRewards = reward.balanceOf(address(this));
         uint256 remainingRewards = totalRewards;
-
         if(totalRewards > 1000){
-
             for(uint256 i = 0; i < contributors.length; i++ ){
                 address cont = contributors[i];
                 uint256 share = totalRewards.mul(shares[cont].numOfShares).div(1000);
                 reward.safeTransfer(cont, share);
-
                 remainingRewards -= share;
             }
             reward.safeTransfer(owner, remainingRewards);
