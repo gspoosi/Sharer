@@ -74,13 +74,12 @@ contract Sharer {
     }
 
     function distribute(address _rewards) public{
-        require(totalShare > 0);
         IERC20 reward = IERC20(_rewards);
 
         uint256 totalRewards = reward.balanceOf(address(this));
         uint256 remainingRewards = totalRewards;
 
-        if(totalRewards > totalShare){
+        if(totalRewards > 1000){
 
             for(uint256 i = 0; i < contributors.length; i++ ){
                 address cont = contributors[i];
