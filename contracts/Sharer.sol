@@ -1,4 +1,4 @@
-pragma solidity ^0.6.12;
+pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -14,12 +14,12 @@ contract Sharer {
     event contributorAdded(address _con, uint256 _shares, uint256 _total);
     event contributorDeleted(address _con, uint256 _total);
     struct Contributor {
-        uint256 numOfShares;
+        uint16 numOfShares;
         bool exists;
     }
     mapping(address => Contributor) public shares;
     address public owner;
-    uint256 public totalShare;
+    uint16 public totalShare;
     address[] public contributors;
 
 
@@ -31,10 +31,21 @@ contract Sharer {
         require(msg.sender == owner);
         _;
     }
+     function tryadd(uint16 a, uint16 b) internal pure returns (uint16) {
+        uint16 c = a + b;
+        require(c >= a, "SafeMath: addition overflow");
+        return c;
+    }
+    function trySub(uint16 a, uint16 b) internal pure returns (uint16) {
+        require(b <= a, "SafeMath: subtraction overflow");
+        return a - b;
+    }
 
     //Change shares of a contributor or sets
-    function addContributor(address _con, uint256 _share) public onlyOwner {
-        uint256 oldShares = 0;
+    function addContributor(address _con, uint16 _share) public onlyOwner {
+        require (_share <= 1000, "share more than 100%");
+
+        uint16 oldShares = 0;
         if (shares[_con].exists) {
             oldShares  = shares[_con].numOfShares;
             //set new number of shares for existing contributor
@@ -45,14 +56,28 @@ contract Sharer {
         contributors.push(_con);
         }
         //update totalShare
-        totalShare = totalShare - oldShares + _share;
+        totalShare = tryadd((totalShare - oldShares), _share);
         //revert if we pushed the total over 1000...
-        require (totalShare < 1000, "share total more than 100%");
+        require (totalShare <= 1000, "share total more than 100%");
         emit contributorAdded(_con, _share, totalShare);
     }
 
+    function setContributors(uint16[] calldata  contributorsEx, address[] calldata contributorA) public onlyOwner {
+        require(contributorA.length == contributorsEx.length, "length not the same");
+
+        uint16 oldShares = 0;
+        contributors = contributorA;
+         for(uint256 i = 0; i < contributorsEx.length; i++ ){
+             oldShares = tryadd(oldShares, contributorsEx[i]);
+             require(oldShares <= 1000, "share total more than 100%");
+             shares[contributorA[i]] = Contributor(contributorsEx[i], true);
+         }
+         totalShare = oldShares;
+
+    }
+
     function removeContributor(address _con) public onlyOwner {
-        uint256 oldShares = 0;
+        uint16 oldShares = 0;
         if (shares[_con].exists) {
             oldShares  = shares[_con].numOfShares;
             //Remove the address from the array
