@@ -30,32 +30,32 @@ contract SharerV2 {
         strategist_ms = _ms;
     }
 
-    function viewContributors(address lpToken) public view returns (Contributor[] memory){
-       return shares[lpToken];
+    function viewContributors(address strategy) public view returns (Contributor[] memory){
+       return shares[strategy];
     }
 
 
-    function setContributors(address lpToken, uint256[] calldata  contributorsS, address[] calldata contributorA) public {
+    function setContributors(address strategy, uint256[] calldata  contributorsS, address[] calldata contributorA) public {
         require(contributorA.length == contributorsS.length, "length not the same");
 
-        require(shares[lpToken].length == 0 || msg.sender == strategist_ms, "Only Strat MS can overwrite");
+        require(shares[strategy].length == 0 || msg.sender == strategist_ms, "Only Strat MS can overwrite");
 
-        delete shares[lpToken];
+        delete shares[strategy];
         uint256 totalShares = 0;
 
         for(uint256 i = 0; i < contributorsS.length; i++ ){
             totalShares = totalShares.add(contributorsS[i]);
             
-            shares[lpToken].push(Contributor(contributorsS[i], contributorA[i]));
+            shares[strategy].push(Contributor(contributorsS[i], contributorA[i]));
         }
         require(totalShares <= 1000, "share total more than 100%");
 
     }
 
 
-    function distribute(address lpToken) public{
+    function distribute(address lpToken, address strategy) public{
         IERC20 reward = IERC20(lpToken);
-        Contributor[] memory contributorsT = shares[lpToken];
+        Contributor[] memory contributorsT = shares[strategy];
 
         uint256 totalRewards = reward.balanceOf(address(this));
         uint256 remainingRewards = totalRewards;

@@ -20,24 +20,25 @@ def test_share_distro(chain, interface, accounts, Contract, SharerV2):
 
     contributorA = [mat, ryan, sms]
     yshare = interface.ERC20('0x19d3364a399d251e894ac732651be8b0e4e85001')
+    strategy = '0x4D7d4485fD600c61d840ccbeC328BfD76A050F87'
 
-    sharer.setContributors(yshare, contributorsEx,contributorA, {'from': rando} )
+    sharer.setContributors(strategy, contributorsEx,contributorA, {'from': rando} )
 
     ##overwrite
     with brownie.reverts("Only Strat MS can overwrite"):
-        sharer.setContributors(yshare, contributorsEx,contributorA, {'from': rando} )
+        sharer.setContributors(strategy, contributorsEx,contributorA, {'from': rando} )
 
-    sharer.setContributors(yshare, contributorsEx,contributorA, {'from': samdev} )
+    sharer.setContributors(strategy, contributorsEx,contributorA, {'from': samdev} )
 
     ##too many
     contributorsEx = [100, 100, 100, 100]
     with brownie.reverts("length not the same"):
-        sharer.setContributors(yshare, contributorsEx,contributorA, {'from': samdev} )
+        sharer.setContributors(strategy, contributorsEx,contributorA, {'from': samdev} )
 
     ##over 100%
     contributorsEx = [500, 500, 500]
     with brownie.reverts("share total more than 100%"):
-        sharer.setContributors(yshare, contributorsEx,contributorA, {'from': samdev} )
+        sharer.setContributors(strategy, contributorsEx,contributorA, {'from': samdev} )
 
     print(sharer.viewContributors(yshare))
     print(sharer.viewContributors(dmi))
@@ -48,7 +49,7 @@ def test_share_distro(chain, interface, accounts, Contract, SharerV2):
     assert yshare.balanceOf(samdev) == 0
     print("Sharer bal: ", yshare.balanceOf(sharer)/1e18)
 
-    sharer.distribute(yshare, {'from': samdev})
+    sharer.distribute(yshare,strategy, {'from': samdev})
     print("Sam bal after dis: ", yshare.balanceOf(samdev)/1e18)
     print("Mat bal: ", yshare.balanceOf(mat)/1e18)
     assert yshare.balanceOf(mat) == yshare.balanceOf(ryan)
