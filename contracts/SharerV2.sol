@@ -11,23 +11,29 @@ contract SharerV2 {
     using SafeMath for uint256;
     
     event ContributorsSet(address indexed strategy, address[] contributors, uint256[] numOfShares);
-    event Distribute(address indexed strategy, address lpToken);
+    event Distribute(address indexed strategy, address lpToken, uint256 totalDistributed);
 
     struct Contributor {
         address contributor;
         uint256 numOfShares;
     }
     mapping(address => Contributor[]) public shares;
-    address public strategist_ms;
+    address public strategistMs;
+    address public pendingStrategistMs;
 
 
     constructor() public {
-        strategist_ms = msg.sender;
+        strategistMs = msg.sender;
     }
 
     function changeStratMs(address _ms) external {
-        require(msg.sender == strategist_ms);
-        strategist_ms = _ms;
+        require(msg.sender == strategistMs);
+        pendingStrategistMs = _ms;
+    }
+
+    function acceptStratMs() external {
+        require(msg.sender == pendingStrategistMs);
+        strategistMs = pendingStrategistMs;
     }
 
     function viewContributors(address strategy) public view returns (Contributor[] memory){
@@ -40,7 +46,7 @@ contract SharerV2 {
     function setContributors(address strategy, address[] calldata _contributors, uint256[] calldata _numOfShares) public {
         require(_contributors.length == _numOfShares.length, "length not the same");
 
-        require(shares[strategy].length == 0 || msg.sender == strategist_ms, "Only Strat MS can overwrite");
+        require(shares[strategy].length == 0 || msg.sender == strategistMs, "Only Strat MS can overwrite");
 
         delete shares[strategy];
         uint256 totalShares = 0;
@@ -70,7 +76,7 @@ contract SharerV2 {
                 reward.safeTransfer(cont, share);
                 remainingRewards -= share;
         }
-        reward.safeTransfer(strategist_ms, remainingRewards);
-        emit Distribute(strategy, lpToken);
+        reward.safeTransfer(strategistMs, remainingRewards);
+        emit Distribute(strategy, lpToken, totalRewards);
     }
 }

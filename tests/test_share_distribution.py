@@ -30,6 +30,21 @@ def test_share_distro(chain, interface, accounts, Contract, SharerV2):
 
     sharer.setContributors(strategy, contributors, numOfShares, {'from': samdev} )
 
+    ##change owner
+    sharer.changeStratMs(rando, {'from': samdev} )
+    with brownie.reverts("Only Strat MS can overwrite"):
+        sharer.setContributors(strategy, contributors, numOfShares, {'from': rando} )
+    
+    sharer.acceptStratMs({'from': rando})
+    with brownie.reverts("Only Strat MS can overwrite"):
+        sharer.setContributors(strategy, contributors, numOfShares, {'from': samdev} )
+    sharer.setContributors(strategy, contributors, numOfShares, {'from': rando} )
+
+    sharer.changeStratMs(samdev, {'from': rando} )
+    sharer.acceptStratMs({'from': samdev})
+
+    sharer.setContributors(strategy, contributors, numOfShares, {'from': samdev} )
+
     ##too many
     numOfShares = [100, 100, 100, 100]
     with brownie.reverts("length not the same"):
