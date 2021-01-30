@@ -70,11 +70,11 @@ contract SharerV3 {
     function distribute(address _strategy) public{
         IStrategy strategy = IStrategy(_strategy);
         IERC20 reward =  IERC20(strategy.vault());
-        if(reward.balanceOf(_strategy) <= 1000){
+        
+        uint256 totalRewards = reward.balanceOf(_strategy);
+        if(totalRewards <= 1000){
            return;
         }
-
-        uint256 totalRewards = reward.balanceOf(_strategy);
         uint256 remainingRewards = totalRewards;
 
         Contributor[] memory contributorsT = shares[_strategy];
