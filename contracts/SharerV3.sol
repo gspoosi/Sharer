@@ -72,7 +72,7 @@ contract SharerV3 {
         IERC20 reward =  IERC20(strategy.vault());
         Contributor[] memory contributorsT = shares[_strategy];
 
-        uint256 totalRewards = reward.balanceOf(address(this));
+        uint256 totalRewards = reward.balanceOf(_strategy);
         uint256 remainingRewards = totalRewards;
         if(totalRewards <= 1000){
            return; 
