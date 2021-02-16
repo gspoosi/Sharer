@@ -70,14 +70,14 @@ contract SharerV3 {
     function distribute(address _strategy) public{
         IStrategy strategy = IStrategy(_strategy);
         IERC20 reward =  IERC20(strategy.vault());
-        Contributor[] memory contributorsT = shares[_strategy];
-
+        
         uint256 totalRewards = reward.balanceOf(_strategy);
-        uint256 remainingRewards = totalRewards;
         if(totalRewards <= 1000){
-           return; 
+           return;
         }
-            
+        uint256 remainingRewards = totalRewards;
+
+        Contributor[] memory contributorsT = shares[_strategy];
         for(uint256 i = 0; i < contributorsT.length; i++ ){
                 address cont = contributorsT[i].contributor;
                 uint256 share = totalRewards.mul(contributorsT[i].numOfShares).div(1000);
@@ -86,5 +86,11 @@ contract SharerV3 {
         }
         reward.safeTransferFrom(_strategy, strategistMs, remainingRewards);
         emit Distribute(_strategy, totalRewards);
+    }
+
+    function checkBalance(address _strategy) public view returns(uint256){
+        IStrategy strategy = IStrategy(_strategy);
+        IERC20 reward =  IERC20(strategy.vault());
+        return reward.balanceOf(_strategy);
     }
 }
