@@ -22,7 +22,7 @@ Once strategist rewards begin to be earned by the strategy, they can be claimed 
 The Sharer contract splits rewards up into 1,000 shares to be distributed among contributors. So a strategist who, for example, wants to split rewards evenly with another strategist should assign 500 shares to themselves and 500 to the other strategist.  
 If the sum of assigned shares is less 1,000, the remainder will automatically be sent to the strategist multisig whenever `.distribute()` is called.
 
-## Reccommended Share Allocation
+## Recommended Share Allocation
 While each strategist has ultimate say in how their cut of the performance fee is split up, it is strongly reccommended to:
 - Allocate 1/3 of total shares to the strategist multisig to cover things like code reviews, guidance, and incentivization of tooling
 - Allocate additional amounts of shares to others who have may have helped in the strategy's development process.
